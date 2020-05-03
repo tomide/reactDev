@@ -12,34 +12,26 @@ import ProfilePicture from  '../components/profileScreenComponents/ProfilePictur
 import {ActionSheet, Root} from 'native-base';
 import * as ImagePicker from 'expo-image-picker';
 import { uuid } from 'uuidv4';
-import { Camera } from 'expo-camera';
 import { NavigationContainer } from '@react-navigation/native';
 
 export type RootStackParamList = {
   Home: undefined;
   CameraScreen: undefined;
-
 }
 export const Stack = createStackNavigator<RootStackParamList>();
 
-type HomeNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Home'
->;
+type HomeNavigationProp = StackNavigationProp<RootStackParamList,'Home'>;
 
 interface IHomeProps {
   navigation: HomeNavigationProp;
 }
 
 export const HomeScreen: FC<IHomeProps> = props => {
-    
         const [storeImage, setStoreImage] = useState<string>('')
         const [profilePageState, setProfilePageState] = useState<boolean>(false)  
         const [cameraScreenState, setCameraScreenState] = useState<boolean>(false)
         const [previewScreenState, setPreviewScreenState] = useState<boolean>(false)
-        const [hasPermission, setHasPermission] = useState(false);
-        const [type, setType] = useState(Camera.Constants.Type.back)
-        const [columns_needed, setColumns_needed] = useState<number>(3)
+        const [columnsNeeded, setColumnsNeeded] = useState<number>(3)
         const [imageList, setImageList] = useState <Array<{key: string, value: string}> >([])
         const [profileImage, setProfileImage] = useState<string>('https://raw.githubusercontent.com/AboutReact/sampleresource/master/old_logo.png')
         const [previewImage, setPreviewImage ]= useState('')
@@ -121,13 +113,6 @@ const takeNewPicture = () => {
           setCameraScreenState(false)                           
         }
   
-      const switchCamera = () => {
-          setType(
-                      type === Camera.Constants.Type.back
-                      ? Camera.Constants.Type.front
-                      : Camera.Constants.Type.back
-                  );
-                  }
 
       const onClickAddImages = () => {
       setCameraScreenState(true)
@@ -137,13 +122,7 @@ const takeNewPicture = () => {
       props.navigation.navigate('CameraScreen');
                   }
 
-      useEffect(() => {
-          // tslint:disable-next-line: no-floating-promises
-          (async () => {
-          const { status } = await Camera.requestPermissionsAsync();
-          setHasPermission(status  === 'granted');
-          })();
-      }, []);
+
 
 const deleteImageHandler = (imgId: string) => {
   setImageList(imagelist => {
@@ -247,7 +226,7 @@ const styles = StyleSheet.create({
                 <View style={styles.uploadedPictureSection} > 
                         <FlatList 
                                 data={imageList} 
-                                numColumns={columns_needed}
+                                numColumns={columnsNeeded}
                                 renderItem={itemData => <AddedImage image={itemData.item.value} />}
                         />
                 </View>
