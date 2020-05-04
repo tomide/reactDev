@@ -1,18 +1,17 @@
-import React , { useState, useEffect , FC} from 'react';
+import React , { useState , FC, useContext} from 'react';
 import { StyleSheet, View , FlatList} from 'react-native';
 import { StackNavigationProp, createStackNavigator } from '@react-navigation/stack';
 import ProfileDetails from '../components/profileScreenComponents/CurrentProfileDetails';
 import FullWidthButton from '../components/FullWidthButton';
-import CameraHandler from '../Screens/Camera';
 import AddedImage from  '../components/profileScreenComponents/AddedImages';
 import ImagePreviewer from  '../components/profileScreenComponents/ImagePreview';
 import ProfileEditPage from  '../components/profileScreenComponents/ProfileEditPage';
-import ProfileEditPage2 from  '../components/profileScreenComponents/ProfileEditPage2';
 import ProfilePicture from  '../components/profileScreenComponents/ProfilePicture';
-import {ActionSheet, Root} from 'native-base';
+import {ActionSheet} from 'native-base';
 import * as ImagePicker from 'expo-image-picker';
 import { uuid } from 'uuidv4';
-import { NavigationContainer } from '@react-navigation/native';
+import { IAppContextInterface,AppContextConsumer, AppContextProvider } from '../components/profileScreenComponents/ProfileContext';
+
 
 export type RootStackParamList = {
   Home: undefined;
@@ -71,6 +70,7 @@ const imageFromCamera = (img: string) => {
   setCameraScreenState(false) 
   setPreviewScreenState(true)                          
 }
+
 
 const acceptImage = (img: string) => {
   if (storeImage === 'other_pictures') { 
@@ -187,13 +187,15 @@ const styles = StyleSheet.create({
     }
     });
 
+
   return (
+  <AppContextConsumer>
+{appContext => appContext &&  (
         <View style={styles.screen}>
                 <View style={styles.profilePictureSection}>
                     <ProfilePicture 
+                        onPressHandle={onClickNavigateToCamera}
                         profileImage={profileImage}
-                        updateStoreLocation={updateStoreLocation}
-                        onClickAddImages={onClickAddImages} 
                     />
                 </View>
         
@@ -225,15 +227,16 @@ const styles = StyleSheet.create({
 
                 <View style={styles.uploadedPictureSection} > 
                         <FlatList 
-                                data={imageList} 
+                                data={appContext.imgl} 
                                 numColumns={columnsNeeded}
                                 renderItem={itemData => <AddedImage image={itemData.item.value} />}
                         />
                 </View>
                 <FullWidthButton 
                         backgroundColor="pink" 
-                        buttonText="Upload Photo"
-                        onPressHandler={onClickNavigateToCamera} 
+                        buttonText={appContext.location}
+                        // buttonText="Upload Photo"
+                        onPressHandler={onClickNavigateToCamera.bind(appContext.location)} 
                 />
         
                 <ImagePreviewer 
@@ -242,6 +245,9 @@ const styles = StyleSheet.create({
                         takeNewPicture={takeNewPicture} 
                         image={previewImage} 
                 />
-          </View>
+          </View> 
+)}
+        </AppContextConsumer>
+
   );
 }

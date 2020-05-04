@@ -3,29 +3,30 @@ import { Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 import { Camera } from 'expo-camera';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
-import {HomeScreen, Stack, RootStackParamList} from '../Screens/ProfileScreen';
-import { NavigationNativeContainer } from '@react-navigation/native';
+import {RootStackParamList} from '../Screens/ProfileScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import GoBackButton from '../components/GoBackButton';
-import { Button } from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker';
+import { IAppContextInterface,AppContextConsumer, AppContextProvider } from '../components/profileScreenComponents/ProfileContext';
 
-interface IProps {
-    // visible: boolean;
-    // hasPermission: boolean;
-    // type: string;
-    // imageFromCamera: (img:string) => void;
-    // pickImage: () => void;
-    // closeClose: () => void;
-    // switchCamera: () => void;
-  }
+
+// interface IProps {
+//     // visible: boolean;
+//     // hasPermission: boolean;
+//     // type: string;
+//     // imageFromCamera: (img:string) => void;
+//     // pickImage: () => void;
+//     // closeClose: () => void;
+//     // switchCamera: () => void;
+//   }
 
   type CameraNavigationProp = StackNavigationProp<RootStackParamList,'CameraScreen'>;
 
-  interface ICameraeProps {
+  interface ICameraProps {
     navigation: CameraNavigationProp;
   }
 
-const CameraHandler: FC<ICameraeProps> = props => {
+const CameraHandler: FC<ICameraProps> = props => {
 
     const [type, setType] = useState(Camera.Constants.Type.back)
     const [hasPermission, setHasPermission] = useState(false);
@@ -38,6 +39,20 @@ const CameraHandler: FC<ICameraeProps> = props => {
         })();
     }, []);
 
+    const pickImage = async () => {
+        const result:ImagePicker.ImagePickerResult = await 
+                ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                  allowsEditing: true,
+                  aspect: [4, 3],
+                  quality: 1   
+        });
+        if (result.cancelled === false){
+        props.navigation.replace('Home')
+        return result.uri;
+        }
+    }
+
     const switchCamera = () => {
         setType(
                 type === Camera.Constants.Type.back
@@ -48,19 +63,23 @@ const CameraHandler: FC<ICameraeProps> = props => {
         
     const cameraRef = React.createRef<Camera>();
 
-            const snap = async () => {
-                if (cameraRef.current) {
-                const result = await cameraRef.current.takePictureAsync({
-                });  
-                // props.imageFromCamera(result.uri)
-                        }
-                };
+    const snap = async (newList: Array<{key: string, value: string}>) => {
+        if (cameraRef.current) {
+        const result = await cameraRef.current.takePictureAsync({
+        });  
+        newList.push({key:'test', value:result.uri})
+        props.navigation.replace('Home')
+        // return newList.push({key:'test', value:result.uri})
+                }
+        };
 
-            if (hasPermission === false) {
-                return <Text>No access to camera</Text>;
-            }
-            return (
+    if (hasPermission === false) {
+        return <Text>No access to camera</Text>;
+    }
 
+    return (
+        <AppContextConsumer>
+        {appContext => appContext &&  (
         <View style={{ flex: 1 }}>
 
             <Camera 
@@ -80,7 +99,7 @@ const CameraHandler: FC<ICameraeProps> = props => {
 
                     <TouchableOpacity
                             style={styles.iconSPacing}
-                            // onPress={props.pickImage} 
+                            onPress={() => pickImage()} 
                     >
                     <Ionicons
                             name="ios-photos"
@@ -89,7 +108,7 @@ const CameraHandler: FC<ICameraeProps> = props => {
                     </TouchableOpacity>
                     <TouchableOpacity 
                             style={styles.iconSPacing}
-                            // onPress={() => snap()}
+                            onPress={() => snap(appContext.imgl)}
                     >
                     <FontAwesome
                             name="camera"
@@ -98,7 +117,7 @@ const CameraHandler: FC<ICameraeProps> = props => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.iconSPacing}
-                            // onPress={props.switchCamera} 
+                        onPress={() => switchCamera()} 
                     >
                     <MaterialCommunityIcons
                         name="camera-switch"
@@ -107,7 +126,9 @@ const CameraHandler: FC<ICameraeProps> = props => {
                     </TouchableOpacity>
                     </View>            
             </Camera>
-        </View>
+        </View> 
+        )}
+    </AppContextConsumer>
             );
 }
 

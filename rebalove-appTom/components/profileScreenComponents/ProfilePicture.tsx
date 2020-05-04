@@ -1,21 +1,15 @@
 import React, { FC } from 'react';
-import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, View, TouchableOpacity, GestureResponderEvent } from 'react-native';
 
 interface IProps {
     profileImage: string;
-    updateStoreLocation: (location: string) => void;
-    onClickAddImages: () => void;
+    onPressHandle: () => void;
   }
 
 const ProfilePicture: FC<IProps> = props => {
 
-    const updateStoreLocationAndImage = () => {
-        props.updateStoreLocation('profile_picture');
-        props.onClickAddImages()
-    }
-
     return (
-        <TouchableOpacity onPress={updateStoreLocationAndImage}>
+        <TouchableOpacity onPress={props.onPressHandle}>
             <View style={styles.box}>
             <Image
               source={{uri: props.profileImage}}
